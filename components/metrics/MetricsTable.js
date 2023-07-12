@@ -73,13 +73,27 @@ export function MetricsTable({
 
   const filteredData = useMemo(() => {
     if (data) {
-      let items = percentFilter(dataFilter ? dataFilter(data, filterOptions) : data);
+      let items = data;
+
+      if (dataFilter) {
+        if (Array.isArray(dataFilter)) {
+          items = dataFilter.reduce((arr, filter) => {
+            return filter(arr);
+          }, items);
+        } else {
+          items = dataFilter(data);
+        }
+      }
+
+      items = percentFilter(items);
+
       if (limit) {
         items = items.filter((e, i) => i < limit);
       }
       if (filterOptions?.sort === false) {
         return items;
       }
+
       return items.sort(firstBy('y', -1).thenBy('x'));
     }
     return [];
